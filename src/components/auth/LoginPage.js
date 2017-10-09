@@ -1,30 +1,4 @@
-Simple React Project Using Okta SignIn Widget
-==
-
-Start by cloning the simple react seed project
---
-
-```bash
-git clone https://github.com/leebrandt/simple-react-seed.git okta-react-widget-sample
-cd okta-react-widget-sample
-npm install
-npm start
-```
-
-Then add the Okta SignIn Widget
---
-to install the newest version of the signin widget:
-
-```bash
-npm install @okta/okta-signin-widget --save
-```
-
-Finally, we'll add the LoginPage component
---
-```js
 import React from 'react';
-import '@okta/okta-signin-widget/dist/css/okta-sign-in.min.css';
-import '@okta/okta-signin-widget/dist/css/okta-theme.css';
 import OktaSignIn from '@okta/okta-signin-widget';
 
 export default class LoginPage extends React.Component{
@@ -32,12 +6,9 @@ export default class LoginPage extends React.Component{
     super();
     this.state = { user: null };
     this.widget = new OktaSignIn({
-      baseUrl: 'https://dev-[dev id].oktapreview.com',
-      clientId: '[client id]',
-      redirectUri: 'http://localhost:3000',
-      authParams: {
-        responseType: 'id_token'
-      }
+      baseUrl: 'https://dev-613050.oktapreview.com',
+      clientId: '0oabmgih2wMjVzaa00h7',
+      redirectUri: 'http://localhost:3000'
     });
 
     this.showLogin = this.showLogin.bind(this);
@@ -45,6 +16,7 @@ export default class LoginPage extends React.Component{
   }
 
   componentDidMount(){
+    console.log('componentDidMount...');
     this.widget.session.get((response) => {
       if(response.status !== 'INACTIVE'){
         this.setState({user:response.login});
@@ -55,10 +27,12 @@ export default class LoginPage extends React.Component{
   }
 
   showLogin(){
+    console.log('showLogin...')
     Backbone.history.stop();
-    this.widget.renderEl({el:'#okta-login-container'}, 
-      (response) => {
+    this.widget.renderEl({el:this.loginContainer}, 
+      (response) => {        
         this.setState({user: response.claims.email});
+        this.widget.remove();
       },
       (err) => {
         console.log(err);
@@ -67,6 +41,7 @@ export default class LoginPage extends React.Component{
   }
 
   logout(){
+    console.log('logout...');
     this.widget.signOut(() => {
       this.setState({user: null});
       this.showLogin();
@@ -74,6 +49,7 @@ export default class LoginPage extends React.Component{
   }
 
   render(){
+    console.log('rendering...');
     return(
       <div>
         {this.state.user ? (
@@ -83,10 +59,9 @@ export default class LoginPage extends React.Component{
           </div>
         ) : null}
         {this.state.user ? null : (
-          <div id="okta-login-container" className="login" />
+          <div ref={(div) => {this.loginContainer = div; }} />
         )}
       </div>
     );
   }
 }
-```
